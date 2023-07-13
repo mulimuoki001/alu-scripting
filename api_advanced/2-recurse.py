@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""This function returns all the hot posts from a given sureddit"""
+"""This function returns all the hot posts from a given subreddit"""
 
 import requests
 

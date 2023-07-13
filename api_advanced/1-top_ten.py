@@ -1,17 +1,28 @@
 #!/usr/bin/python3
-"""This function retrieves the top ten posts of a given subreddit"""
-
+""" This module uses recursion to get hot articles"""
 import requests
 
 
-def top_ten(subreddit):
-    url = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
-    headers = {"User-Agent": "My User Agent 1.0"}
-    feedback = requests.get(url, headers=headers)
-
-    if feedback.status_code != 200:
-        print(None)
+def recurse(subreddit, hot_list=[], after=None):
+    BASE_URL = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
+    headers = {'User-Agent': 'Didas Junior'}
+    params = {'after': after}
+    response = requests.get(BASE_URL, headers=headers,
+                            params=params,
+                            allow_redirects=False)
+    if response.status_code == 200:
+        data = response.json().get('data')
+        if data is not None:
+            children = data.get('children')
+            if children is not None:
+                for child in children:
+                    hot_list.append(child.get('data').get('title'))
+                after = data.get('after')
+                if after is not None:
+                    return recurse(subreddit, hot_list, after)
+                else:
+                    return hot_list
+        else:
+            return hot_list
     else:
-        data = feedback.json().get("data").get("children")
-        for post in data:
-            print(post.get("data").get("title"))
+        return None
