@@ -1,18 +1,32 @@
 #!/usr/bin/python3
-"""This function returns all the hot posts from a given subreddit"""
-
+""""Doc"""
 import requests
 
 
-def recurse(subreddit, hot_list=[]):
-    url = f"https://www.reddit.com/r/{subreddit}/hot.json?list={hot_list}"
-    headers = {"User-Agent": "My User Agent 1.0"}
-    feedback = requests.get(url, headers=headers)
+def recurse(subreddit, hot_list=[], after=""):
+    """"Doc
+    Reddit sends an after property in the response.
+    Keep retrieving comments until after is null.
+    """
+    url = "https://www.reddit.com/r/{}/hot.json" \
+        .format(subreddit)
+    header = {'User-Agent': 'Mozilla/5.0'}
+    param = {'after': after}
+    res = requests.get(url, headers=header, params=param)
 
-    if feedback.status_code != 200:
-        print(None)
+    if res.status_code != 200:
+        return None
     else:
-        data1 = feedback.json().get("data").get("children")
-        for post in data1:
-            data2 = hot_list.append(post.get("data").get("title"))
-            print(data2)
+        json_res = res.json()
+        # print(json_res.get('data').get('after'))
+        after = json_res.get('data').get('after')
+        has_next = \
+            json_res.get('data').get('after') is not None
+        # print(has_next)
+        hot_articles = json_res.get('data').get('children')
+        [hot_list.append(article.get('data').get('title'))
+         for article in hot_articles]
+        # print(len(hot_list))
+        # print(hot_list)
+        return recurse(subreddit, hot_list, after=after) \
+            if has_next else hot_list
