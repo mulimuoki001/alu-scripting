@@ -15,6 +15,3 @@ def top_ten(subreddit):
         data = feedback.json().get("data").get("children")
         for post in data:
             print(post.get("data").get("title"))
-
-data1 = top_ten("python")
-print(data1)
